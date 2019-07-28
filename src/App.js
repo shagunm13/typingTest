@@ -25,7 +25,7 @@ class App extends React.Component {
       "There is a lovely road that runs from Ixopo into the hills. These hills are grass-covered and rolling, and they are lovely beyond any singing of it. The road climbs seven miles into them to Carisbrooke; and from there, if there is no mist, you look down on one of the fairest valleys of Africa. About you there is grass and bracken and you may hear the forlorn crying of the titihoya, one of the birds of the veld. Below you is the valley of the Umzimkulu, on its journey from the Drakensberg to the sea; and beyond and behind the river, great hill after great hill; and beyond and behind them, the mountains of Ingeli.",
       "To avoid mistakes is the beginning, as it is the end, of mastery in chess. If you make no mistakes you can be certain of never losing a game, and very constantly you will win it. And how difficult this is! Even the strongest masters cannot avoid them. How many games have been lost only because of them? Tchigorin overlooked a mate in two in the final game of his second match against Steinitz for the world championship and thus lost the match!! Here is a position from the game Rosselli v. Alekhin, from the recent tournament in Folkestone, which was really a game of errors.",
       "A mobile phone (also known as a hand phone, cell phone, or cellular telephone) is a small portable radio telephone. The mobile phone can be used to communicate over long distances without wires. It works by communicating with a nearby base station which connects it to the main phone network. When moving, if the mobile phone gets too far away from the cell it is connected to, that cell sends a message to another cell to tell the new cell to take over the call. This is called a hand off and the call continues with the new cell the phone is connected to. The hand-off is done so well and carefully that the user will usually never even know that the call was transferred to another cell.",
-      "Albert Einstein was born in Ulm, in the Kingdom of Württemberg in the German Empire. Einstein developed an appreciation for music at an early age. In his late journals he wrote: If I were not a physicist, I would probably be a musician. Music took on a pivotal and permanent role in Einstein's life from that period on. Although the idea of becoming a professional musician himself was not on his mind at any time."
+      "Albert Einstein was born in Ulm, in the Kingdom of Wurttemberg in the German Empire. Einstein developed an appreciation for music at an early age. In his late journals he wrote: If I were not a physicist, I would probably be a musician. Music took on a pivotal and permanent role in Einstein's life from that period on. Although the idea of becoming a professional musician himself was not on his mind at any time.In 1905, Albert Einstein determined that the laws of physics are the same for all non-accelerating observers, and that the speed of light in a vacuum was independent of the motion of all observers. This was the theory of special relativity."
     ]
 
 
@@ -102,13 +102,42 @@ class App extends React.Component {
   }
 
   handleInput = (event) => {
+    const { space, correct, wrong, userWord } = this.state;
+
+    // starting the timer on starting type once.
+
     if (!this.state.enableTime)
       this.startTimer()
 
-    this.setState({ text: event.target.value, enableTime: true })
+
+    if (event.target.value.includes(" ")) {
+      console.log("space is present");
+      let actualWord = this.state.testData.split(" ")
+      if (space < actualWord.length) {
+        if (actualWord[space] === userWord.trim()) {
+          let newArray = this.state.arrayToDisplay
+          newArray[space].color = 'green'
+          this.setState({ correct: correct + 1, arrayToDisplay: newArray })
+        }
+        else {
+          let newArray = this.state.arrayToDisplay
+          newArray[space].color = 'red'
+          this.setState({ wrong: wrong + 1, arrayToDisplay: newArray })
+        }
+        this.setState({ space: this.state.space + 1, userWord: '', text: '', enableTime: true })
+      }
+      else {
+        this.setState({ start: false, message: "Test Completed" })
+      }
+    }
+    else {
+      this.setState({ userWord: event.target.value, text: event.target.value, enableTime: true })
+    }
+
   }
 
-  handleSpace = (event) => {
+  // onKeyDown only supporting for desktop browser not android one. 
+  /*handleSpace = (event) => {
     const { space, correct, wrong, userWord } = this.state;
 
     if (event.keyCode === 32) {
@@ -140,7 +169,7 @@ class App extends React.Component {
       this.setState({ userWord: this.state.userWord.concat(event.key) })
     }
 
-  }
+  }*/
 
 
 
@@ -149,44 +178,52 @@ class App extends React.Component {
     let { correct, wrong, message, arrayToDisplay, space } = this.state;
 
     return (
-      <div className="App">
+      <div className="container text-center">
+
         {this.state.start ?
-          <div>
-            <h1>TYPING TEST</h1>
-            <h3>Time Remaining : {this.state.time} seconds</h3>
+          <div className="row">
+            <div className="col">
+              <h1>TYPING TEST</h1>
+              <h3>Time Remaining : {this.state.time} seconds</h3>
 
-            <div style={{ display: 'inline-block' }}>
-              <input type="text"
-                value={this.state.text}
-                onChange={this.handleInput}
-                onKeyDown={this.handleSpace}
-                style={{ width: 400, height: 60, fontSize: 22 }}
-              />
+              <div style={{ display: 'inline-block' }}>
+                <input type="text"
+                  value={this.state.text}
+                  onChange={this.handleInput}
+                  autoCapitalize='none'
+                  // onKeyDown={this.handleSpace}
+                  style={{ width: 400, height: 60, fontSize: 22, marginBottom: 30 }}
 
-              <p style={{ border: '1px solid black', width: 600, text: 'center', padding: 30 }}>
-                {arrayToDisplay.map((obj, index) => (<span style={{ color: `${obj.color}`, backgroundColor: `${space === index ? 'grey' : ''} `, fontSize: 20 }}
-                  key={index}>
-                  {obj.word} </span>))}
-              </p>
+                />
+
+                <p style={{ border: '1px solid black', text: 'center', padding: 30 }} >
+                  {arrayToDisplay.map((obj, index) => (<span style={{ color: `${obj.color}`, backgroundColor: `${space === index ? 'grey' : ''} `, fontSize: 20 }}
+                    key={index}>
+                    {obj.word} </span>))}
+                </p>
+              </div>
             </div>
           </div>
           :
-          <div style={{ marginTop: 100 }}>
-            <h1>Want to test your Speed </h1>
-            <h3>take a quick test</h3>
-            <button onClick={this.handleStart} >START HERE</button>
-            <div>{message &&
-              <div style={{ border: '1px solid grey', width: 400, display: 'inline-block', marginTop: 50, paddingBottom: 30 }}>
-                <h2>{message}</h2>  <br />
-                Typing Speed: <strong>{correct}</strong> wpm<br />
-                Typing error : <strong>{wrong}</strong> mistakes<br />
-                Accuracy : <strong>{((correct / (correct + wrong)) * 100).toFixed(2)}</strong> %
+          <div className="row">
+            <div className="col" style={{ marginTop: 100 }}>
+              <h1>Want to test your Speed </h1>
+              <h3 style={{ marginTop: 50 }}>take a quick test</h3>
+              <button onClick={this.handleStart} type="button" className="btn btn-outline-info" style={{ marginTop: 30 }}>START HERE</button>
+              <div>{message &&
+                <div style={{ border: '1px solid grey', marginTop: 50, paddingBottom: 30 }}>
+                  <h2>{message}</h2>  <br />
+                  Typing Speed: <strong>{correct}</strong> wpm<br />
+                  Typing error : <strong>{wrong}</strong> mistakes<br />
+                  Accuracy : <strong>{((correct / (correct + wrong)) * 100).toFixed(2)}</strong> %
                </div>
-            }
+              }
+              </div>
             </div>
           </div>
         }
       </div>
+
     );
   }
 }
